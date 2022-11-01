@@ -1,0 +1,93 @@
+{%extends 'base.html'%}
+    {%block header%} 
+        {%if session['logged_in']%}
+            Hello {{user['last_name']|capitalize}}, {{user['first_name']|capitalize}}!
+        {%else%}
+            Hey There..
+        {%endif%}
+    {%endblock%}
+    {%block main%}
+    {%if session['logged_in']%}
+        <div>
+            <table>
+                <th>
+                    First Name
+                </th>
+                <th>
+                    Last Name
+                </th>
+                <th>
+                    Email
+                </th>
+                <tr>
+                    <td>
+                        {{user['first_name']|capitalize}}
+                    </td>
+                    <td>
+                        {{user['last_name']|capitalize}}
+                    </td>
+                    <td>
+                        {{user['email']}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <table>
+                <th>
+                    ID
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Under 30?
+                </th>
+                <th>
+                    Options
+                </th>
+                {% for i in recipes%}
+                    <tr>
+                        <td>
+                            {{i.id}}
+                        </td>
+                        <td>
+                            {{i.name.title()}}
+                        </td>
+                        <td>
+                            {% if i.under_30 == 'N' or i.under_30 == 'n'%}
+                                No
+                            {% else %}
+                                Yes
+                            {% endif %}
+                        </td>
+                            <td>
+                                <a href="/recipe/{{i.id}}">
+                                    Instructions
+                                </a>
+                                <br>
+                                {% if session['logged_in']['id'] == i.creator_id %}
+                                    <a href='/recipe/{{i.id}}/update'>
+                                        Edit
+                                    </a>
+                                    |
+                                    <a href='/recipe/{{i.id}}/delete'>
+                                        Delete
+                                    </a>
+                                {% endif %}
+                            </td>
+                    </tr>
+                {%endfor%}
+            </table>
+        </div>
+        {%else%}
+        <div>
+            Try logging in
+            <br>
+            <span class="emoji">
+                🍰
+            </span>
+        </div>
+        {%endif%}
+        {%endblock%}
