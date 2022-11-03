@@ -1,4 +1,5 @@
 from flask_app.config.mysqlconnection import connectToMySQL
+from flask_app.models.user import User
 
 class Recipe:
     db="recipes_schema"
@@ -22,9 +23,35 @@ class Recipe:
     '''READ ONE'''
     @classmethod
     def select_one(cls, data):
-        query="SELECT * FROM recipes WHERE id=%(id)s"
+        query="SELECT * FROM recipes JOIN users ON users.id = creator_id WHERE recipes.id=%(id)s"
         result=connectToMySQL(cls.db).query_db(query, data)
-        return cls(result[0])
+        # [{'id': 1, 'description': 'delicious blueberries in a pie crust', 'name': 'blueberry pie', '
+        # instructions': 'prepare dough, /nmake filling with blueberries, bake', 'under_30': 'N', 'created_at': datetime.datetime(2022, 3, 8, 9, 36, 23), 'updated_at': datetime.datetime(2022, 3, 8, 9, 36, 23), 
+        # 'creator_id': 1, 'users.id': 1, 'first_name': 'blue', 'last_name': 'berry', 'email': 'blueberry@pie.com', 'password': 'Passw0rd!', 'users.created_at': datetime.datetime(2022, 3, 8, 9, 36, 15), 'users.updated_at': datetime.datetime(2022, 3, 8, 9, 36, 15)}]
+        
+        # HELPFUL FOR EXAM. YOU'RE GOING TO NEED TO JOIN A USER TO SOMETHING
+        # create a user instance 
+        u = User({
+            "id": result[0]["users.id"],
+            "first_name": result[0]["first_name"],
+            "last_name": result[0]["last_name"],
+            "email" : result[0]["email"],
+            "password" : result[0]["password"],
+            "created_at" : result[0]["users.created_at"],
+            "updated_at" : result[0]["users.updated_at"],
+        })
+        # create a recipe instance, save the user into creator_id
+        r = cls({
+            "id" : result[0]["id"],
+            "name" : result[0]["name"],
+            "description" : result[0]["description"],
+            "instructions" : result[0]["instructions"],
+            "under_30" : result[0]["under_30"],
+            "created_at" : result[0]["created_at"],
+            "updated_at" : result[0]["updated_at"],
+            "creator_id" : u
+        })
+        return r
 
     '''CREATE'''
     @classmethod
